@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>色辨遊戲簡易版</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            border-radius: 10px;
+        }
+
+        #container {
+            width: 100%;
+            height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #F06060;
+            position: relative;
+        }
+
+        #cube-box {
+            width: 500px;
+            height: 500px;
+            background-color: #ddd;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            cursor: pointer;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .box {
+            width: 200px;
+            height: 200px;
+            background-color: blue;
+            /* margin-right: 20px;
+            margin-left: 20px;
+            margin-top: 20px; */
+        }
+
+        .transparent {
+            opacity: 0.5;
+        }
+
+        .score {
+            width: 100px;
+            height: 50px;
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 8px;
+            text-align: center;
+            line-height: 50px;
+            position: absolute;
+            left: 5%;
+            top: 5%;
+            display: flex;
+            padding-left: 15px;
+            font-size: 20px;
+        }
+
+        .count-time {
+            width: 100px;
+            height: 50px;
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 8px;
+            text-align: center;
+            line-height: 50px;
+            position: absolute;
+            right: 5%;
+            top: 5%;
+            display: flex;
+            padding-left: 15px;
+            font-size: 20px;
+        }
+
+        .pause-btn {
+            width: 100px;
+            height: 50px;
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 8px;
+            text-align: center;
+            line-height: 50px;
+            position: absolute;
+            right: 5%;
+            bottom: 15%;
+            display: flex;
+            padding-left: 15px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .continue-btn {
+            width: 100px;
+            height: 50px;
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 8px;
+            text-align: center;
+            line-height: 50px;
+            position: absolute;
+            right: 5%;
+            bottom: 5%;
+            display: flex;
+            padding-left: 10px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .restart-btn {
+            width: 100px;
+            height: 50px;
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 8px;
+            text-align: center;
+            line-height: 50px;
+            position: absolute;
+            left: 5%;
+            bottom: 5%;
+            display: flex;
+            padding-left: 15px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-left: 10px;
+        }
+
+        #resultTime {
+            margin-right: 10px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <section id="container">
+        <div class="score">
+            得分:
+            <span id="result"></span>
+        </div>
+        <div class="count-time">
+            <span id="resultTime"></span>
+            秒
+        </div>
+        <button class="pause-btn" type="button">
+            PAUSE
+        </button>
+        <button class="continue-btn" type="button">
+            CONTINUE
+        </button>
+        <button class="restart-btn" type="button">
+            RESTART
+        </button>
+        <div id="cube-box"></div>
+    </section>
+
+    <script>
+        // 畫面上印出 2 * 2 的顏色自訂的方塊
+        // 隨機一個方塊的顏色較透明，表示這是答案
+        // 使用者點擊答案方塊後，跳出提示視窗，告知使用者答對了
+        // 每次答對後，重新產生新的答案方塊再次進行遊戲
+        let content = '';
+        const cubeBox = document.querySelector('#cube-box');
+        let randomBox = 0;
+        let randomColor = 0;
+        let count = 0;
+        let multipleCount = 2;
+        let countRun = 1;
+        let timeInterval;
+        let second = 61;
+        let isPause = false;
+
+        const result = document.querySelector('#result');
+        const resultTime = document.querySelector('#resultTime');
+        const pauseBtn = document.querySelector('.pause-btn');
+        const continueBtn = document.querySelector('.continue-btn');
+        const restartBtn = document.querySelector('.restart-btn');
+        countTime();
+        createCube(2);
+
+        pauseBtn.addEventListener('click', function () {
+            isPause = true;
+        });
+
+        continueBtn.addEventListener('click', function () {
+            isPause = false;
+        });
+
+        restartBtn.addEventListener('click', function () {
+            if(!isPause){
+                restartGame();
+            }
+        });
+
+        function createCube(multiple) {
+            result.textContent = count;
+
+            count++;
+            randomBox = Math.floor(Math.random() * (multiple ** 2));
+            randomColor = `rgb(${Math.floor(Math.random() * 201)},${Math.floor(Math.random() * 201)},${Math.floor(Math.random() * 201)})`;
+            content = '';
+            for (let i = 0; i < multiple ** 2; i++) {
+                if (i === randomBox) {
+                    content += '<div class="box transparent"></div>';
+                }
+                else {
+                    content += '<div class="box"></div>';
+                }
+            };
+            cubeBox.innerHTML = content;
+
+            addCubelistener(randomColor, multiple);
+
+        };
+
+        function addCubelistener(randomColor = 0, multiple = 0) {
+            const allBox = document.querySelectorAll('.box');
+
+            for (let i = 0; i < allBox.length; i++) {
+                allBox[i].style.backgroundColor = randomColor;
+
+                const countWidth = Math.floor(98 / multiple);
+                allBox[i].style.width = `${countWidth}%`;
+                allBox[i].style.height = `${countWidth}%`;
+                allBox[i].addEventListener('click', function () {
+
+                    if (i === randomBox && !isPause) {
+                        // alert('你答對了');
+                        const multipleValue = multipleComputer();
+                        createCube(multipleValue);
+
+                    }
+                });
+            };
+        };
+
+        function multipleComputer() {
+            const multipleSet = multipleCount;
+            if (countRun < multipleCount - 1) {
+                countRun++;
+            }
+            else {
+                if (multipleCount < 8) {
+                    multipleCount++;
+                }
+                countRun = 0;
+            }
+            return multipleSet;
+        };
+
+
+        function countTime() {
+            timeInterval = setInterval(updateTime, 1000);
+        };
+
+        function updateTime() {
+            if (!isPause) {
+                if (second > 0) {
+                    second--;
+                }
+                else {
+                    alert(`時間到，恭喜您獲得${count - 1}分`);
+                    restartGame();
+                    window.location.href = 'js-home-page.html';
+                }
+                resultTime.textContent = second;
+            }
+
+        };
+
+        function restartGame() {
+            count = 0;
+            multipleCount = 2;
+            second = 61;
+            createCube(multipleCount);
+        };
+
+    </script>
+</body>
+
+</html>

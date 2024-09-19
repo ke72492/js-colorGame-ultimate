@@ -20,7 +20,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #F06060;
+            background: linear-gradient(to right, rgb(66, 130, 167), rgb(158, 221, 76));
             position: relative;
         }
 
@@ -34,6 +34,9 @@
             cursor: pointer;
             justify-content: space-between;
             align-items: center;
+            border: 15px solid #396d1d;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
 
         .box {
@@ -84,7 +87,7 @@
         .pause-btn {
             width: 100px;
             height: 50px;
-            background-color: white;
+            background-color: rgb(112, 184, 224);
             border: 1px solid black;
             border-radius: 8px;
             text-align: center;
@@ -96,12 +99,20 @@
             padding-left: 15px;
             font-size: 20px;
             cursor: pointer;
+            transition: background-color 1s, transform 1s, color 1s;
         }
+
+        .pause-btn:hover {
+            background-color: rgb(86, 143, 174);
+            transform: scale(1.5);
+            color: white;
+        }
+
 
         .continue-btn {
             width: 100px;
             height: 50px;
-            background-color: white;
+            background-color: rgb(112, 184, 224);
             border: 1px solid black;
             border-radius: 8px;
             text-align: center;
@@ -113,12 +124,19 @@
             padding-left: 10px;
             font-size: 15px;
             cursor: pointer;
+            transition: background-color 1s, transform 1s, color 1s;
+        }
+
+        .continue-btn:hover {
+            background-color: rgb(86, 143, 174);
+            transform: scale(1.5);
+            color: white;
         }
 
         .restart-btn {
             width: 100px;
             height: 50px;
-            background-color: white;
+            background-color: rgb(112, 184, 224);
             border: 1px solid black;
             border-radius: 8px;
             text-align: center;
@@ -130,6 +148,13 @@
             padding-left: 15px;
             font-size: 15px;
             cursor: pointer;
+            transition: background-color 1s, transform 1s, color 1s;
+        }
+
+        .restart-btn:hover {
+            background-color: rgb(86, 143, 174);
+            transform: scale(1.5);
+            color: white;
         }
 
         #result {
@@ -139,6 +164,14 @@
         #resultTime {
             margin-right: 10px;
             margin-left: 10px;
+        }
+
+        #pause-img{
+            width: 500px;
+            height: 500px;
+            background-image: url(./暫停圖片.png);
+            background-size: cover;
+            display: none;
         }
     </style>
 </head>
@@ -162,6 +195,7 @@
         <button class="restart-btn" type="button">
             RESTART
         </button>
+        <div id="pause-img"></div>
         <div id="cube-box"></div>
     </section>
 
@@ -186,19 +220,26 @@
         const pauseBtn = document.querySelector('.pause-btn');
         const continueBtn = document.querySelector('.continue-btn');
         const restartBtn = document.querySelector('.restart-btn');
+        const pauseImg = document.querySelector('#pause-img');
         countTime();
         createCube(2);
 
         pauseBtn.addEventListener('click', function () {
             isPause = true;
+            pauseImg.style.display='flex';
+            cubeBox.style.display='none';
         });
 
         continueBtn.addEventListener('click', function () {
             isPause = false;
+            pauseImg.style.display='none';
+            cubeBox.style.display='flex';
+
+            createCube(multipleCount);
         });
 
         restartBtn.addEventListener('click', function () {
-            if(!isPause){
+            if (!isPause) {
                 restartGame();
             }
         });
@@ -272,7 +313,7 @@
                 else {
                     alert(`時間到，恭喜您獲得${count - 1}分`);
                     restartGame();
-                    window.location.href = 'js-home-page.html';
+                    window.location.href = 'index.html';
                 }
                 resultTime.textContent = second;
             }
